@@ -13,6 +13,7 @@ namespace WebServerProject.Controllers
         }
 
         [HttpMethod("GET")]
+        [Authorize("User,Admin")]
         public string All()
         {
             string str = "<ol style='padding-left:20px;'>";

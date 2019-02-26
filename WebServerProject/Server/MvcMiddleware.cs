@@ -7,7 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web;
 using WebServerProject.Server.Attributes;
+using WebServerProject.Services;
 
 namespace WebServerProject.Server
 {
@@ -23,18 +25,16 @@ namespace WebServerProject.Server
         public async Task InvokeAsync(HttpListenerContext context, Dictionary<string, object> data)
         {
             HttpListenerResponse response = context.Response;
+
             StreamWriter writer = new StreamWriter(response.OutputStream);
             try
             {
-                string resp = FindControllerAction(context.Request , data);
-                if (resp != null)
-                {
-                    response.StatusCode = 200;
+                string resp = FindControllerAction(context , data);
+                if (resp != null) {
                     response.ContentType = "text/html";
                     writer.Write(resp);
                 }
-                else
-                {
+                else {
                     await next.Invoke(context, data);
                 }
             }
@@ -50,8 +50,10 @@ namespace WebServerProject.Server
             }            
         }
 
-        private string FindControllerAction(HttpListenerRequest request, Dictionary<string, object> data)
+        private string FindControllerAction(HttpListenerContext context, Dictionary<string, object> data)           
         {
+            HttpListenerRequest request = context.Request;
+
             string[] urlparts = request.Url.PathAndQuery.Split(new char[] { '/', '\\', '?' }, StringSplitOptions.RemoveEmptyEntries);
             if (urlparts.Length < 2) return null;
 
@@ -62,6 +64,8 @@ namespace WebServerProject.Server
             Type controllerType = curAssembly.GetType($"WebServerProject.Controllers.{controller}Controller", false, true);
             if (controllerType == null)
                 return null;
+
+
 
             MethodInfo actionMethod = controllerType.GetMethod(action, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
             if (actionMethod == null)
@@ -125,6 +129,15 @@ namespace WebServerProject.Server
             if (paramsToMethod.Count != actionMethod.GetParameters().Length) return null;
 
             var _this = MyWebServer.IOC.Resolve(controllerType);
+
+            // p.SetMethod?.IsPublic ?? false)
+            // (p.SetMethod != null ? p.SetMethod.IsPublic : null) != null ? p.SetMethod.IsPublic : false;
+            var propHttpContext = _this.GetType().GetProperties().Where(p => p.PropertyType == typeof(HttpListenerContext) && (p.SetMethod?.IsPublic ?? false)).FirstOrDefault();
+            if (propHttpContext != null)
+            {
+                propHttpContext.SetValue(_this, context);
+            }
+
             var args = paramsToMethod.ToArray();
             var res = actionMethod.Invoke(_this, args);
 

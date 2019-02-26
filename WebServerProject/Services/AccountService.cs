@@ -14,6 +14,7 @@ namespace WebServerProject.Services
         }
 
         public static string currentToken { get; set; }
+        public static string currentRole { get; set; }
         public static int? currentAccountID { get; set; }
 
         public void Add(Account account)

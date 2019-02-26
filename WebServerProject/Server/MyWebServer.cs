@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace WebServerProject.Server
 {
@@ -13,7 +14,7 @@ namespace WebServerProject.Server
         private string port;
 
         private HttpListener httpListener;
-
+        public HttpListenerContext Context { get; private set; }
         private HttpDelegate firstMiddleware;
 
         public static IContainer IOC { get; private set; }
@@ -36,6 +37,7 @@ namespace WebServerProject.Server
 
             var depBuilder = new ContainerBuilder();
             configurator.ConfigureDependencies(depBuilder);
+            depBuilder.RegisterType<HttpContextProvider>().As<IHttpContextProvider>().WithParameter("server", this);
             IOC = depBuilder.Build();
 
             return this;
@@ -47,6 +49,7 @@ namespace WebServerProject.Server
             while(true)
             {
                 HttpListenerContext context = httpListener.GetContext();
+                this.Context = context;
                 Task.Run(() => { Process(context); });
             }
         }
