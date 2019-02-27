@@ -49,8 +49,6 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ToDoController.cs" />
     <Compile Include="Models\Account.cs" />
-    <Compile Include="Server\HttpContextProvider.cs" />
-    <Compile Include="Server\IHttpContextProvider.cs" />
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\IAccountService.cs" />
     <Compile Include="Services\IToDoService.cs" />

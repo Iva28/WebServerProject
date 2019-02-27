@@ -12,8 +12,8 @@ namespace WebServerProject.Controllers
             this.todoService = todoService;
         }
 
-        [HttpMethod("GET")]
         [Authorize("User,Admin")]
+        [HttpMethod("GET")]
         public string All()
         {
             string str = "<ol style='padding-left:20px;'>";
@@ -28,8 +28,7 @@ namespace WebServerProject.Controllers
             str += $"</ol>" +
                 $"<form method='POST' action='http://127.0.0.1:5600/toDo/add' style='margin-left:8px;'><label>ToDo: </label>" +
                 $"<input type='text' name='todoName' required><input type='submit' value='Add'></form>" +
-                $"<a href='http://127.0.0.1:5600/account/login' style='margin-left:8px;font-size:15px;color:black;'>Exit</a>";
-
+                $"<a href='http://127.0.0.1:5600/account/logout' style='margin-left:8px;font-size:15px;color:black;'>Exit</a>";
             return str;
         }
 

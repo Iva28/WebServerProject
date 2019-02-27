@@ -130,8 +130,6 @@ namespace WebServerProject.Server
 
             var _this = MyWebServer.IOC.Resolve(controllerType);
 
-            // p.SetMethod?.IsPublic ?? false)
-            // (p.SetMethod != null ? p.SetMethod.IsPublic : null) != null ? p.SetMethod.IsPublic : false;
             var propHttpContext = _this.GetType().GetProperties().Where(p => p.PropertyType == typeof(HttpListenerContext) && (p.SetMethod?.IsPublic ?? false)).FirstOrDefault();
             if (propHttpContext != null)
             {
